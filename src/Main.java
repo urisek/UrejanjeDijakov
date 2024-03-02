@@ -31,7 +31,7 @@ public class Main extends Application {
         // Ustvari tabelo za prikaz učencev
         TableView<Ucenec> tabelaUcenca = new TableView<>();
 
-        // Ustvari stolpce za ime, priimek, razred in email
+        // Ustvari stolpce za ime, priimek, razred, email in gumb za urejanje
         TableColumn<Ucenec, String> imeStolpec = new TableColumn<>("Ime");
         imeStolpec.setCellValueFactory(new PropertyValueFactory<>("ime"));
 
@@ -44,8 +44,30 @@ public class Main extends Application {
         TableColumn<Ucenec, String> emailStolpec = new TableColumn<>("E-pošta");
         emailStolpec.setCellValueFactory(new PropertyValueFactory<>("email"));
 
+        TableColumn<Ucenec, Void> urejanjeStolpec = new TableColumn<>("Uredi");
+        urejanjeStolpec.setCellFactory(param -> new TableCell<Ucenec, Void>() {
+            private final Button gumbUredi = new Button("Uredi");
+
+            {
+                gumbUredi.setOnAction(event -> {
+                    Ucenec ucenec = getTableView().getItems().get(getIndex());
+                    prikaziObrazecZaUrejanje(primaryStage, ucenec, tabelaUcenca);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(gumbUredi);
+                }
+            }
+        });
+
         // Dodaj stolpce v tabelo
-        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec);
+        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec, urejanjeStolpec);
 
         // Pridobi podatke o učencih iz baze podatkov
         ObservableList<Ucenec> ucenci = pridobiVseUcenca();
@@ -81,17 +103,31 @@ public class Main extends Application {
         });
     }
 
+    private void prikaziObrazecZaUrejanje(Stage primaryStage, Ucenec ucenec, TableView<Ucenec> tabelaUcenca) {
+        // Ustvari obrazec za urejanje učenca in prikaži ga
+        UrejanjeDijaka urejanjeDijaka = new UrejanjeDijaka(ucenec, tabelaUcenca);
+        Stage urejanjeDijakaStage = new Stage();
+        urejanjeDijaka.start(urejanjeDijakaStage);
+
+        // Dodaj poslušalca za dogodek, ko se obrazec za urejanje učenca zapre
+        urejanjeDijakaStage.setOnHiding(event -> {
+            // Posodobi tabelo učencev po urejanju učenca
+            tabelaUcenca.setItems(pridobiVseUcenca());
+        });
+    }
+
     private ObservableList<Ucenec> pridobiVseUcenca() {
         ObservableList<Ucenec> ucenci = FXCollections.observableArrayList();
         try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
              Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM dijaki");
             while (resultSet.next()) {
+                int id = resultSet.getInt("dijak_id");
                 String ime = resultSet.getString("ime");
                 String priimek = resultSet.getString("priimek");
                 String razred = resultSet.getString("razred");
                 String email = resultSet.getString("email");
-                ucenci.add(new Ucenec(ime, priimek, razred, email));
+                ucenci.add(new Ucenec(id, ime, priimek, razred, email));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,32 +141,54 @@ public class Main extends Application {
 
     // Razred za predstavitev učenca
     public static class Ucenec {
-        private final String ime;
-        private final String priimek;
-        private final String razred;
-        private final String email;
+        private int id;
+        private String ime;
+        private String priimek;
+        private String razred;
+        private String email;
 
-        public Ucenec(String ime, String priimek, String razred, String email) {
+        public Ucenec(int id,String ime, String priimek, String razred, String email) {
+            this.id = id;
             this.ime = ime;
             this.priimek = priimek;
             this.razred = razred;
             this.email = email;
         }
 
+        public int getId() {
+            return id;
+        }
+
         public String getIme() {
             return ime;
+        }
+
+        public void setIme(String ime) {
+            this.ime = ime;
         }
 
         public String getPriimek() {
             return priimek;
         }
 
+        public void setPriimek(String priimek) {
+            this.priimek = priimek;
+        }
+
         public String getRazred() {
             return razred;
         }
 
+        public void setRazred(String razred) {
+            this.razred = razred;
+        }
+
         public String getEmail() {
             return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
         }
     }
 }

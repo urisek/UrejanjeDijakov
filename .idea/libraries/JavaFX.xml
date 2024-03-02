@@ -1,12 +1,10 @@
 <component name="libraryTable">
-  <library name="lib">
+  <library name="JavaFX">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/lib" />
       <root url="file://$USER_HOME$/OneDrive/Desktop/javafx/javafx-sdk-21.0.2/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
-    <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" />
     <jarDirectory url="file://$USER_HOME$/OneDrive/Desktop/javafx/javafx-sdk-21.0.2/lib" recursive="false" />
   </library>
 </component>

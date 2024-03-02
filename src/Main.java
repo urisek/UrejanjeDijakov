@@ -14,7 +14,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.Optional;
+import java.sql.CallableStatement;
 public class Main extends Application {
     // Podatki za povezavo z bazo podatkov
     static final String URL = "jdbc:postgresql://ep-plain-sky-a2q2qj2y.eu-central-1.aws.neon.tech/ProjektDijaki";
@@ -31,7 +32,7 @@ public class Main extends Application {
         // Ustvari tabelo za prikaz učencev
         TableView<Ucenec> tabelaUcenca = new TableView<>();
 
-        // Ustvari stolpce za ime, priimek, razred, email in gumb za urejanje
+        // Ustvari stolpce za ime, priimek, razred, email, gumb za urejanje in gumb za brisanje
         TableColumn<Ucenec, String> imeStolpec = new TableColumn<>("Ime");
         imeStolpec.setCellValueFactory(new PropertyValueFactory<>("ime"));
 
@@ -66,8 +67,34 @@ public class Main extends Application {
             }
         });
 
+        TableColumn<Ucenec, Void> deleteStolpec = new TableColumn<>("Izbriši");
+        deleteStolpec.setCellFactory(param -> new TableCell<Ucenec, Void>() {
+            private final Button deleteButton = new Button("Izbriši");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    Ucenec ucenec = getTableView().getItems().get(getIndex());
+                    boolean confirmed = confirmDelete("Ali ste prepričani, da želite izbrisati učenca?");
+                    if (confirmed) {
+                        deleteUcenecFromDatabase(ucenec);
+                        tabelaUcenca.getItems().remove(ucenec);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
         // Dodaj stolpce v tabelo
-        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec, urejanjeStolpec);
+        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec, urejanjeStolpec, deleteStolpec);
 
         // Pridobi podatke o učencih iz baze podatkov
         ObservableList<Ucenec> ucenci = pridobiVseUcenca();
@@ -135,6 +162,30 @@ public class Main extends Application {
         return ucenci;
     }
 
+    private boolean confirmDelete(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potrditev brisanja");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        ButtonType yesButton = new ButtonType("Da", ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType("Ne", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(yesButton, noButton);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == yesButton;
+    }
+
+    private void deleteUcenecFromDatabase(Ucenec ucenec) {
+        try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
+             CallableStatement statement = connection.prepareCall("{call izbrisi_dijaka(?)}")) {
+            statement.setInt(1, ucenec.getId());
+            statement.executeUpdate();
+            System.out.println("Učenec uspešno izbrisan.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -147,7 +198,7 @@ public class Main extends Application {
         private String razred;
         private String email;
 
-        public Ucenec(int id,String ime, String priimek, String razred, String email) {
+        public Ucenec(int id, String ime, String priimek, String razred, String email) {
             this.id = id;
             this.ime = ime;
             this.priimek = priimek;

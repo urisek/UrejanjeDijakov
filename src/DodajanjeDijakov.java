@@ -16,6 +16,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
 
 public class DodajanjeDijakov extends Application {
     // Podatki za povezavo z bazo podatkov
@@ -128,17 +130,21 @@ public class DodajanjeDijakov extends Application {
 
     private void dodajPodatkeVBazo(String ime, String priimek, String razred, String rojstniDatum, String email, int krajId) {
         try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
-             Statement statement = connection.createStatement()) {
-            // Izvedi SQL stavek za vstavljanje podatkov v bazo
-            String sql = "INSERT INTO dijaki (ime, priimek, razred, rojstni_datum, email, kraj_id) " +
-                    "VALUES ('" + ime + "', '" + priimek + "', '" + razred + "', '" + rojstniDatum + "', '" + email + "', " + krajId + ")";
-            statement.executeUpdate(sql);
+             CallableStatement statement = connection.prepareCall("{call dodaj_dijaka(?, ?, ?, ?, ?, ?)}")) {
+            statement.setString(1, ime);
+            statement.setString(2, priimek);
+            statement.setString(3, razred);
+            statement.setDate(4, java.sql.Date.valueOf(rojstniDatum));
+            statement.setString(5, email);
+            statement.setInt(6, krajId);
+            statement.execute();
             // Prikaži sporočilo o uspešnem dodajanju
-
+            prikaziSporocilo("Dodajanje podatkov", "Podatki uspešno dodani.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     // Metoda za prikazovanje sporočil v obliki pop-up okna
     private void prikaziSporocilo(String naslov, String sporocilo) {

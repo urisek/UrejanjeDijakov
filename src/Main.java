@@ -1,15 +1,41 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.sql.*;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+    // Podatki za povezavo z bazo podatkov
+    static final String URL = "jdbc:postgresql://ep-plain-sky-a2q2qj2y.eu-central-1.aws.neon.tech/ProjektDijaki";
+    static final String UPORABNIŠKO_IME = "tim.urisek";
+    static final String GESLO = "fj27rezZVgtP";
+
+    public static void main(String[] args) {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            // Poveži se z bazo podatkov
+            connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
+
+            // Izvedi poizvedbo za pridobitev dijakov
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM dijaki");
+
+            // Izpiši rezultate
+            while (resultSet.next()) {
+                String ime = resultSet.getString("ime");
+                String priimek = resultSet.getString("priimek");
+                System.out.println("Ime: " + ime + ", Priimek: " + priimek);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Zapri povezavo, izjave in rezultat
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

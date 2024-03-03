@@ -8,14 +8,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Optional;
-import java.sql.CallableStatement;
+
+import java.sql.*;
+
 public class Main extends Application {
     // Podatki za povezavo z bazo podatkov
     static final String URL = "jdbc:postgresql://ep-plain-sky-a2q2qj2y.eu-central-1.aws.neon.tech/ProjektDijaki";
@@ -93,8 +89,30 @@ public class Main extends Application {
             }
         });
 
+        TableColumn<Ucenec, Void> pregledOcenStolpec = new TableColumn<>("Pregled ocen");
+        pregledOcenStolpec.setCellFactory(param -> new TableCell<Ucenec, Void>() {
+            private final Button pregledOcenButton = new Button("Preglej ocene");
+
+            {
+                pregledOcenButton.setOnAction(event -> {
+                    Ucenec ucenec = getTableView().getItems().get(getIndex());
+                    prikaziPregledOcen(primaryStage, ucenec);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(pregledOcenButton);
+                }
+            }
+        });
+
         // Dodaj stolpce v tabelo
-        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec, urejanjeStolpec, deleteStolpec);
+        tabelaUcenca.getColumns().addAll(imeStolpec, priimekStolpec, razredStolpec, emailStolpec, urejanjeStolpec, deleteStolpec, pregledOcenStolpec);
 
         // Pridobi podatke o učencih iz baze podatkov
         ObservableList<Ucenec> ucenci = pridobiVseUcenca();
@@ -143,6 +161,12 @@ public class Main extends Application {
         });
     }
 
+    private void prikaziPregledOcen(Stage primaryStage, Ucenec ucenec) {
+        // Prikaz pregleda ocen se zdaj nahaja tukaj
+        Stage pregledOcenStage = new Stage();
+        OceneDijaka.prikaziPregledOcen(pregledOcenStage, ucenec);
+    }
+
     private ObservableList<Ucenec> pridobiVseUcenca() {
         ObservableList<Ucenec> ucenci = FXCollections.observableArrayList();
         try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
@@ -162,18 +186,6 @@ public class Main extends Application {
         return ucenci;
     }
 
-    private boolean confirmDelete(String message) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Potrditev brisanja");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        ButtonType yesButton = new ButtonType("Da", ButtonBar.ButtonData.YES);
-        ButtonType noButton = new ButtonType("Ne", ButtonBar.ButtonData.NO);
-        alert.getButtonTypes().setAll(yesButton, noButton);
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == yesButton;
-    }
-
     private void deleteUcenecFromDatabase(Ucenec ucenec) {
         try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
              CallableStatement statement = connection.prepareCall("{call izbrisi_dijaka(?)}")) {
@@ -185,6 +197,17 @@ public class Main extends Application {
         }
     }
 
+    private boolean confirmDelete(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potrditev brisanja");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        ButtonType yesButton = new ButtonType("Da", ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType("Ne", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(yesButton, noButton);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == yesButton;
+    }
 
     public static void main(String[] args) {
         launch(args);

@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.Optional;
+import javafx.scene.control.TableView;
 
 import java.sql.*;
 
@@ -41,7 +42,19 @@ public class Main extends Application {
         TableColumn<Ucenec, String> emailStolpec = new TableColumn<>("E-pošta");
         emailStolpec.setCellValueFactory(new PropertyValueFactory<>("email"));
 
+
+// Set up table style
+        tabelaUcenca.setStyle("-fx-font-size: 14px;");
+
+// Set up column styles
+        imeStolpec.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;"); // Example style for the 'Ime' column
+        priimekStolpec.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;"); // Example style for the 'Priimek' column, aligning text to the center
+        razredStolpec.setStyle("-fx-alignment: CENTER;"); // Example style for the 'Razred' column, setting text color to green
+        emailStolpec.setStyle("-fx-alignment: CENTER;"); // Example style for the 'E-pošta' column, setting background color to light blue
+
+
         TableColumn<Ucenec, Void> urejanjeStolpec = new TableColumn<>("Uredi");
+
         urejanjeStolpec.setCellFactory(param -> new TableCell<Ucenec, Void>() {
             private final Button gumbUredi = new Button("Uredi");
 
@@ -49,7 +62,9 @@ public class Main extends Application {
                 gumbUredi.setOnAction(event -> {
                     Ucenec ucenec = getTableView().getItems().get(getIndex());
                     prikaziObrazecZaUrejanje(primaryStage, ucenec, tabelaUcenca);
+
                 });
+                gumbUredi.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
             }
 
             @Override
@@ -75,7 +90,9 @@ public class Main extends Application {
                         deleteUcenecFromDatabase(ucenec);
                         tabelaUcenca.getItems().remove(ucenec);
                     }
+
                 });
+                deleteButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
             }
 
             @Override
@@ -98,6 +115,7 @@ public class Main extends Application {
                     Ucenec ucenec = getTableView().getItems().get(getIndex());
                     prikaziPregledOcen(primaryStage, ucenec);
                 });
+                pregledOcenButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
             }
 
             @Override
@@ -124,14 +142,21 @@ public class Main extends Application {
         // Dodaj gumb za dodajanje novega dijaka
         Button dodajDijakaButton = new Button("DODAJ NOVEGA DIJAKA");
         dodajDijakaButton.setOnAction(event -> prikaziDodajanjeDijaka(primaryStage, tabelaUcenca));
+        dodajDijakaButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
+
         vBox.getChildren().add(dodajDijakaButton);
 
         root.setCenter(vBox);
-
+        root.setStyle("-fx-background-color: #FFA500;");
         // Ustvari prizorišče in ga nastavi na odru
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 700, 400);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Seznam učencev");
+        // Set title with bold and centered text
+        Label titleLabel = new Label("SEZNAM UČENCEV");
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+        root.setTop(titleLabel);
+        BorderPane.setAlignment(titleLabel, javafx.geometry.Pos.CENTER);
+        primaryStage.setTitle("");
         primaryStage.show();
     }
 
@@ -265,4 +290,5 @@ public class Main extends Application {
             this.email = email;
         }
     }
+
 }

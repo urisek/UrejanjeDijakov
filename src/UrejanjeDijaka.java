@@ -46,7 +46,7 @@ public class UrejanjeDijaka extends Application {
 
             primaryStage.close();
         });
-
+        saveButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         root.getChildren().addAll(
                 new Label("Ime:"), imeField,
                 new Label("Priimek:"), priimekField,
@@ -59,6 +59,7 @@ public class UrejanjeDijaka extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Urejanje učenca");
         primaryStage.show();
+        root.setStyle("-fx-background-color: #FFA500;");
     }
 
     private void updateUcenecInDatabase(Main.Ucenec ucenec) {

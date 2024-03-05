@@ -38,10 +38,10 @@ public class UrejanjeDijaka extends Application {
             ucenec.setRazred(razredField.getText());
             ucenec.setEmail(emailField.getText());
 
-            // Update the database with the changes
+
             updateUcenecInDatabase(ucenec);
 
-            // Display a success message
+
             showSuccessMessage();
 
             primaryStage.close();

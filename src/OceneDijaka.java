@@ -148,10 +148,10 @@ public class OceneDijaka extends Application {
             Ocena novaOcena = new Ocena(predmet, ocena, datumOcenjevanja);
             tabelaOcen.getItems().add(novaOcena);
 
-            // Save the grade to the database
+            // Doda oceno v bazo
             dodajOcenoVBazo(ucenec.getId(), predmet, ocena, datumOcenjevanjaTimestamp);
 
-            // Display a success message
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Dodajanje ocene");
             alert.setHeaderText(null);
@@ -197,9 +197,9 @@ public class OceneDijaka extends Application {
         dodajButton.setOnAction(event -> {
             dodajPredmetInUcitelja(imePredmetaTextField.getText(), imeUciteljaTextField.getText(), priimekUciteljaTextField.getText(), emailUciteljaTextField.getText());
             refreshComboBox(predmetComboBox); // Refresh ComboBox
-            // Close the window for adding a new subject and teacher
+
             dodajNovoOknoStage.close();
-            // Display a success message
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Dodajanje učitelja");
             alert.setHeaderText(null);
@@ -281,12 +281,12 @@ public class OceneDijaka extends Application {
     }
 
     public static void main(String[] args) {
-        // Dummy test
+
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Dummy test
+
     }
 }

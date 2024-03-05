@@ -41,7 +41,7 @@ public class DodajanjeDijakov extends Application {
         Label krajLabel = new Label("Kraj:");
         ComboBox<String> krajComboBox = new ComboBox<>();
         Button dodajButton = new Button("Dodaj");
-
+        dodajButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         // Napolni ComboBox z imeni krajev
         ObservableList<String> kraji = FXCollections.observableArrayList();
         try (Connection connection = DriverManager.getConnection(URL, UPORABNIŠKO_IME, GESLO);
@@ -99,6 +99,7 @@ public class DodajanjeDijakov extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Vnos podatkov");
         primaryStage.show();
+        root.setStyle("-fx-background-color: #FFA500;");
     }
 
     private int pridobiKrajId(String imeKraja) {

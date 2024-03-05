@@ -43,10 +43,10 @@ public class Main extends Application {
         emailStolpec.setCellValueFactory(new PropertyValueFactory<>("email"));
 
 
-// Set up table style
+
         tabelaUcenca.setStyle("-fx-font-size: 14px;");
 
-// Set up column styles
+
         imeStolpec.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;"); // Example style for the 'Ime' column
         priimekStolpec.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;"); // Example style for the 'Priimek' column, aligning text to the center
         razredStolpec.setStyle("-fx-alignment: CENTER;"); // Example style for the 'Razred' column, setting text color to green
@@ -151,7 +151,7 @@ public class Main extends Application {
         // Ustvari prizorišče in ga nastavi na odru
         Scene scene = new Scene(root, 700, 400);
         primaryStage.setScene(scene);
-        // Set title with bold and centered text
+
         Label titleLabel = new Label("SEZNAM UČENCEV");
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
         root.setTop(titleLabel);

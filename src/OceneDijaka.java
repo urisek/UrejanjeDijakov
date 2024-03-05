@@ -42,12 +42,18 @@ public class OceneDijaka extends Application {
 
         Button dodajOcenoButton = new Button("Dodaj novo oceno");
         dodajOcenoButton.setOnAction(event -> dodajNovoOceno(pregledOcenStage, ucenec, tabelaOcen));
+        dodajOcenoButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         vBox.getChildren().add(dodajOcenoButton);
 
-        Scene scene = new Scene(vBox, 300, 200);
+
+
+        Scene scene = new Scene(vBox, 290, 400);
         pregledOcenStage.setScene(scene);
         pregledOcenStage.setTitle("Pregled ocen");
         pregledOcenStage.show();
+        vBox.setStyle("-fx-background-color: #FFA500;");
+
+
     }
 
     // Pridobi ocene za določenega učenca iz baze podatkov
@@ -112,6 +118,7 @@ public class OceneDijaka extends Application {
         Stage dodajOcenoStage = new Stage();
         VBox vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
+        vBox.setStyle("-fx-background-color: #FFA500;");
 
         Label naslovLabel = new Label("Dodaj novo oceno za učenca: " + ucenec.getIme() + " " + ucenec.getPriimek());
         naslovLabel.setStyle("-fx-font-weight: bold");
@@ -129,8 +136,9 @@ public class OceneDijaka extends Application {
 
         Button dodajPredmetButton = new Button("DODAJ NOV PREDMET IN UČITELJA");
         dodajPredmetButton.setOnAction(event -> prikaziNovoOknoDodajanjaPredmetaUcitelja(dodajOcenoStage, predmetComboBox));
-
+        dodajPredmetButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         Button potrdiButton = new Button("Potrdi");
+        potrdiButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         potrdiButton.setOnAction(event -> {
             String predmet = predmetComboBox.getValue();
             int ocena = Integer.parseInt(ocenaTextField.getText());
@@ -167,6 +175,7 @@ public class OceneDijaka extends Application {
         Stage dodajNovoOknoStage = new Stage();
         VBox vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
+        vBox.setStyle("-fx-background-color: #FFA500;");
 
         Label naslovLabel = new Label("Dodaj nov predmet in učitelja");
         naslovLabel.setStyle("-fx-font-weight: bold");
@@ -184,6 +193,7 @@ public class OceneDijaka extends Application {
         emailUciteljaTextField.setPromptText("E-pošta učitelja");
 
         Button dodajButton = new Button("Dodaj");
+        dodajButton.setStyle("-fx-background-color: #0078D4; -fx-text-fill: white;");
         dodajButton.setOnAction(event -> {
             dodajPredmetInUcitelja(imePredmetaTextField.getText(), imeUciteljaTextField.getText(), priimekUciteljaTextField.getText(), emailUciteljaTextField.getText());
             refreshComboBox(predmetComboBox); // Refresh ComboBox
@@ -209,17 +219,21 @@ public class OceneDijaka extends Application {
     // Dodaj novo oceno v bazo podatkov
     private static void dodajOcenoVBazo(int dijakId, String predmet, int ocena, Timestamp datum_ocenjavanja) {
         try (Connection connection = DriverManager.getConnection(Main.URL, Main.UPORABNIŠKO_IME, Main.GESLO);
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO ocene (dijak_id, predmet_id, ocena, datum_ocenjevanja) VALUES (?, ?, ?, ?)")) {
-            int predmetId = pridobiIdPredmeta(predmet);
-            statement.setInt(1, dijakId);
-            statement.setInt(2, predmetId);
-            statement.setInt(3, ocena);
-            statement.setTimestamp(4, datum_ocenjavanja);
-            statement.executeUpdate();
+             CallableStatement statement = connection.prepareCall("{call vnos_ocene(?, ?, ?, ?)}")) {
+
+            int predmetId = pridobiIdPredmeta(predmet); // Pridobitev ID-ja predmeta
+
+            statement.setInt(1, dijakId); // Nastavitev parametra dijak_id
+            statement.setInt(2, predmetId); // Nastavitev parametra predmet_id
+            statement.setInt(3, ocena); // Nastavitev parametra ocena
+            statement.setTimestamp(4, datum_ocenjavanja); // Nastavitev parametra datum_ocenjevanja
+
+            statement.executeUpdate(); // Izvedba SQL izjave
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Obdelava morebitne napake
         }
     }
+
 
 
     // Pridobi ID predmeta iz baze podatkov
